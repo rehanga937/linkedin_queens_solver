@@ -76,6 +76,12 @@ class ColorSet:
                 self.held_cols.add(cell.x)
                 self.held_rows.add(cell.y)
 
+    def get_blank_cells(self) -> set[Cell]:
+        blank_cells = set()
+        for cell in self.cells:
+            if cell.status == CellStatus.BLANK: blank_cells.add(cell)
+        return blank_cells
+
 
 class Board:
     """The Queens board.
@@ -166,8 +172,8 @@ class Board:
         offset_rows = (offset * self.height) + offset
 
         # set column and row lengths (note: openpyxl uses 1-indexing. It also takes columns as left to right and rows as top to bottom.)
-        for i in range(1 + offset_rows, self.height + 1):
-            ws.row_dimensions[i].height = 20
+        for i in range(1, self.height + 1):
+            ws.row_dimensions[i + offset_rows].height = 20
         for i in range(1, self.length + 1):
             ws.column_dimensions[get_column_letter(i)].width = 4
 
@@ -230,9 +236,14 @@ class Board:
             if cell.status == CellStatus.BLANK: cell.status = CellStatus.CROSS
 
 
-    def mark_queens_where_certain(self):
+    def mark_queens_where_certain(self) -> bool:
         """Mark queens on the board where certain.
+
+        Returns:
+            bool: Returns true if at least one queen was marked.
         """
+        queen_marked = False
+
         # if a row only has one blank cell
         blank_cells: list[Cell] = []
         for row in self.cell_grid:
@@ -242,6 +253,7 @@ class Board:
                 print("row only has one blank cell")
                 cell = blank_cells[0]
                 self.__mark_queen(cell)
+                queen_marked = True
             blank_cells = [] # reset for next row
 
         # if a column only has one blank cell
@@ -254,6 +266,7 @@ class Board:
                 print("col only has one blank cell")
                 cell = blank_cells[0]
                 self.__mark_queen(cell)
+                queen_marked = True
             blank_cells = [] # reset for next column
 
         # if a color set only has one blank cell
@@ -265,7 +278,10 @@ class Board:
                 print("color set only has one blank cell")
                 cell = blank_cells[0]
                 self.__mark_queen(cell)
+                queen_marked = True
             blank_cells = [] # reset for next color set
+
+        return queen_marked
 
     
     def __refresh_color_set_holdings(self):
@@ -291,4 +307,26 @@ class Board:
 
         if queen_count == self.height: return True
         return False
+    
+    def would_cell_block_color_set(self, cell: Cell) -> bool:
+        """Assuming a cell is a Queen, would it block any other color set completely?
+        """
+        would_block_cells = self.__would_block_cells(cell)
 
+        # for each color set, get a list of blank cells. If all blank cells are included in would_block_cells, that color set would be blocked.
+        for color_set in self.color_sets.values():
+            if color_set.color == cell.color: continue
+
+            blank_cells = color_set.get_blank_cells()
+            if len(blank_cells) == 0: continue
+            if blank_cells.issubset(would_block_cells): return True
+
+        return False
+
+    def get_blank_cells(self) -> list[Cell]:
+        blank_cells = []
+        for row in self.cell_grid:
+            for cell in row:
+                if cell.status == CellStatus.BLANK: blank_cells.append(cell)
+        return blank_cells
+        

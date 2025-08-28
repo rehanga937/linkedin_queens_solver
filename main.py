@@ -3,7 +3,9 @@ import copy
 from classes import Board, CellStatus
 
 
-board = Board.from_json("test_files/20250828.json")
+FILEPATH = "test_files/20250828"
+
+board = Board.from_json(f"{FILEPATH}.json")
 turn = 0
 
 while True:
@@ -12,12 +14,12 @@ while True:
     was_queens_marked = board.mark_queens_where_certain()
     if was_queens_marked:
         print(f"Turn {turn}: Queens Marked")
-        board.to_excel("test_files/20250828.xlsx", turn)
+        board.to_excel(f"{FILEPATH}.xlsx", turn)
         turn += 1
 
     if board.is_game_over():
         print("All queens found!")
-        board.to_excel("test_files/20250828.xlsx", turn)
+        board.to_excel(f"{FILEPATH}.xlsx", turn)
         break
 
     
@@ -34,7 +36,7 @@ while True:
             if color_set.held_rows == {row_y}: continue # skip the turn stuff below
             color_set.only_keep_one_axis(row_y, 'row')
             print(f"Turn {turn}: Row {row_y} with only same color")
-            board.to_excel("test_files/20250828.xlsx", turn)
+            board.to_excel(f"{FILEPATH}.xlsx", turn)
             turn += 1
     
     for col_x in range(0, board.length):
@@ -48,7 +50,7 @@ while True:
             if color_set.held_cols == {col_x}: continue # skip the turn stuff below
             color_set.only_keep_one_axis(col_x, 'col')
             print(f"Turn {turn}: Column {col_x} with only same color")
-            board.to_excel("test_files/20250828.xlsx", turn)
+            board.to_excel(f"{FILEPATH}.xlsx", turn)
             turn += 1
 
     ## cross off cells that if were queens, would block other color sets
@@ -57,7 +59,7 @@ while True:
         if board.would_cell_block_color_set(cell): cell.status = CellStatus.CROSS
 
     print(f"Turn {turn}: Crossed off cells that would block color sets")
-    board.to_excel("test_files/20250828.xlsx", turn)
+    board.to_excel(f"{FILEPATH}.xlsx", turn)
     turn += 1
 
     if not Board.has_board_changed(old_board, board): break

@@ -44,9 +44,9 @@ class ColorSet:
     color: str
     """expected to be a 6-digit color value hex: e.g. 'FF0010'"""
     held_rows: set[int]
-    """The row numbers held by the ColorSet. 0-indexed. e.g. if the color set spans the first 3 rows, this set would have 0,1,2"""
+    """The row numbers held by the ColorSet's blank cells. 0-indexed. e.g. if the color set's blank cells spans the first 3 rows, this set would have 0,1,2"""
     held_cols: set[int]
-    """The column numbers held by the ColorSet. 0-indexed. e.g. if the color set spans the first 3 columns, this set would have 0,1,2"""
+    """The column numbers held by the ColorSet's blank cells. 0-indexed. e.g. if the color set's blank cells spans the first 3 columns, this set would have 0,1,2"""
     cells: list[Cell]
     complete: bool
 
@@ -67,7 +67,14 @@ class ColorSet:
                 self.cells.append(cell)
                 self.held_cols.add(cell.x)
                 self.held_rows.add(cell.y)
-            
+
+    def refresh_holdings(self):
+        """Refresh the held_rows and cols of the object."""
+        self.held_cols = set(); self.held_rows = set()
+        for cell in self.cells:
+            if cell.status == CellStatus.BLANK:
+                self.held_cols.add(cell.x)
+                self.held_rows.add(cell.y)
 
 
 class Board:
@@ -82,7 +89,8 @@ class Board:
     height: int
     """i.e. how many rows the board has
     """
-    color_sets: list[ColorSet]
+    color_sets: dict[str, ColorSet]
+    """Maps 6-digit color hexcode to ColorSets"""
 
     cell_grid: list[list[Cell]]
     """Convention such that we can access a cell via y,x.  i.e. self.cell_grid[y][x].\n 
@@ -92,7 +100,7 @@ class Board:
     def __init__(self, length: int, height: int, cells: list[Cell]):
         self.length = length
         self.height = height
-        self.color_sets = []
+        self.color_sets = {}
 
         # initialize cell grid, so we can add the cells to it later in any order
         self.cell_grid = []
@@ -105,19 +113,19 @@ class Board:
             self.cell_grid[cell.y][cell.x] = cell
 
         # create the color sets
-        color_sets_dict: dict[str, list[Cell]] = {}
+        same_colored_cells: dict[str, list[Cell]] = {}
         for cell in cells:
-            if cell.color not in color_sets_dict.keys():
-                color_sets_dict[cell.color] = [cell]
+            if cell.color not in same_colored_cells.keys():
+                same_colored_cells[cell.color] = [cell]
             else:
-                color_sets_dict[cell.color].append(cell)
+                same_colored_cells[cell.color].append(cell)
 
-        for color in color_sets_dict.keys():
+        for color in same_colored_cells.keys():
             color_set = ColorSet(
-                cells=color_sets_dict[color],
+                cells=same_colored_cells[color],
                 color=color
             )
-            self.color_sets.append(color_set)
+            self.color_sets[color] = color_set
     
     @classmethod
     def from_json(cls, filepath: str):
@@ -135,6 +143,7 @@ class Board:
         cell_data: list[list[str]] = data["colors"]
         for i, row in enumerate(cell_data):
             for j, color in enumerate(row):
+                if color == 'SystemButtonFace': color = "#FFFFFF" # if this is the case assume white
                 cells.append(Cell(j, i, color[1:])) # remove the leading '#' from the otherwise 6-digit color hex code
 
         return cls(
@@ -165,10 +174,96 @@ class Board:
 
         wb.save(filepath)
 
+    def __would_block_cells(self, cell: Cell) -> set[Cell]:
+        """If the input cell is made queen, get the set of cells that it would block.
+        """
+        x = cell.x; y = cell.y
 
+        blocked_cells: set[Cell] = set()
+
+        # cells on the same row and column
+        for col_x in range(0, self.length):
+            cell_ = self.cell_grid[y][col_x]
+            blocked_cells.add(cell_)
+        for row_y in range(0, self.height):
+            cell_ = self.cell_grid[row_y][x]
+            blocked_cells.add(cell_)
+
+        # adjacent cells (diagonal)
+        for col_x in [x-1, x+1]:
+            for row_y in [y-1, y+1]:
+                if col_x < 0 or row_y < 0: continue # normally this would trigger an IndexError and safely skip but this is Python and it uses negative indexing so...
+                try: 
+                    cell_ = self.cell_grid[row_y][col_x]
+                    blocked_cells.add(cell_)
+                except IndexError: continue
+
+        # cells of the same color
+        same_color_set = self.color_sets[cell.color]
+        for cell_ in same_color_set.cells:
+            blocked_cells.add(cell_)
+
+        # except itself ofcourse
+        blocked_cells.remove(cell)
+
+        return blocked_cells
+    
+    def get_cell_at(self, x: int, y: int) -> Cell:
+        return self.cell_grid[y][x]
+
+
+    def __mark_queen(self, cell: Cell):
+        """Mark a cell as a queen. Cross out all the blank cells it would block
+        """
+        x = cell.x; y = cell.y
+
+        # mark cell as queen
+        self.cell_grid[y][x].status = CellStatus.QUEEN
+
+        # cross out all the blank cells it would block
+        would_block_cells = self.__would_block_cells(cell)
+        for cell in would_block_cells:
+            if cell.status == CellStatus.BLANK: cell.status = CellStatus.CROSS
+
+
+    def mark_queens_where_certain(self):
+        """Mark queens on the board where certain.
+        """
+        # if a row only has one blank cell
+        blank_cells: list[Cell] = []
+        for row in self.cell_grid:
+            for cell in row:
+                if cell.status == CellStatus.BLANK: blank_cells.append(cell)
+            if len(blank_cells) == 1:
+                print("row only has one blank cell")
+                cell = blank_cells[0]
+                self.__mark_queen(cell)
+            blank_cells = [] # reset for next row
+
+        # if a column only has one blank cell
+        blank_cells: list[Cell] = []
+        for col_x in range(0, self.length):
+            for row_y in range(0, self.height):
+                cell = self.cell_grid[row_y][col_x]
+                if cell.status == CellStatus.BLANK: blank_cells.append(cell)
+            if len(blank_cells) == 1:
+                print("col only has one blank cell")
+                cell = blank_cells[0]
+                self.__mark_queen(cell)
+            blank_cells = [] # reset for next column
+
+        # if a color set only has one blank cell
+        blank_cells: list[Cell] = []
+        for color_set in self.color_sets.values():
+            for cell in color_set.cells:
+                if cell.status == CellStatus.BLANK: blank_cells.append(cell)
+            if len(blank_cells) == 1:
+                print("color set only has one blank cell")
+                cell = blank_cells[0]
+                self.__mark_queen(cell)
+            blank_cells = [] # reset for next color set
 
     
-
-
-
-
+    def __refresh_color_set_holdings(self):
+        """Refresh the held_rows and cols of the color sets in the board."""
+        for color_set in self.color_sets.values(): color_set.refresh_holdings()

@@ -280,4 +280,15 @@ class Board:
                 cell_2 = board_2.cell_grid[row_y][col_x]
                 if cell_1.status != cell_2.status: return True
         return False
+    
+    def is_game_over(self) -> bool:
+        """If all the Queens have been found. This method only makes sense for a square board...  I mean if it wasn't it would be a very abnormal queens game.
+        """
+        queen_count = 0
+        for row in self.cell_grid:
+            for cell in row:
+                if cell.status == CellStatus.QUEEN: queen_count += 1
+
+        if queen_count == self.height: return True
+        return False
 

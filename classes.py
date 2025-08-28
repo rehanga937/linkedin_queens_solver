@@ -81,6 +81,20 @@ class ColorSet:
         for cell in self.cells:
             if cell.status == CellStatus.BLANK: blank_cells.add(cell)
         return blank_cells
+    
+    def only_keep_one_axis(self, index: int, axis: str):
+        """Only keep the particular row or column. Cross off all other cells in this color set.
+
+        Args:
+            index (int): The index of the row or column to keep
+            axis (str): 'row' or 'col'
+        """
+        if axis == 'row': coord = 'y'
+        elif axis == 'col': coord = 'x'
+        else: raise Exception()
+
+        for cell in self.cells:
+            if cell.__getattribute__(coord) != index: cell.status = CellStatus.CROSS
 
 
 class Board:
@@ -250,7 +264,7 @@ class Board:
             for cell in row:
                 if cell.status == CellStatus.BLANK: blank_cells.append(cell)
             if len(blank_cells) == 1:
-                print("row only has one blank cell")
+                # print("row only has one blank cell")
                 cell = blank_cells[0]
                 self.__mark_queen(cell)
                 queen_marked = True
@@ -263,7 +277,7 @@ class Board:
                 cell = self.cell_grid[row_y][col_x]
                 if cell.status == CellStatus.BLANK: blank_cells.append(cell)
             if len(blank_cells) == 1:
-                print("col only has one blank cell")
+                # print("col only has one blank cell")
                 cell = blank_cells[0]
                 self.__mark_queen(cell)
                 queen_marked = True
@@ -275,11 +289,13 @@ class Board:
             for cell in color_set.cells:
                 if cell.status == CellStatus.BLANK: blank_cells.append(cell)
             if len(blank_cells) == 1:
-                print("color set only has one blank cell")
+                # print("color set only has one blank cell")
                 cell = blank_cells[0]
                 self.__mark_queen(cell)
                 queen_marked = True
             blank_cells = [] # reset for next color set
+
+        self.__refresh_color_set_holdings()
 
         return queen_marked
 

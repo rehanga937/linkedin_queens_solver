@@ -1,7 +1,7 @@
 from enum import Enum
 import json
 
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import PatternFill
 
@@ -154,22 +154,26 @@ class Board:
 
 
 
-    def to_excel(self, filepath: str):
+    def to_excel(self, filepath: str, offset: int = 0):
         """Save the board (in its current state) to an excel file for visualization.
         """
-
-        wb = Workbook()
+        if offset == 0:
+            wb = Workbook()
+        else:
+            wb = load_workbook(filepath)
         ws = wb.active
 
+        offset_rows = (offset * self.height) + offset
+
         # set column and row lengths (note: openpyxl uses 1-indexing. It also takes columns as left to right and rows as top to bottom.)
-        for i in range(1, self.height + 1):
+        for i in range(1 + offset_rows, self.height + 1):
             ws.row_dimensions[i].height = 20
         for i in range(1, self.length + 1):
             ws.column_dimensions[get_column_letter(i)].width = 4
 
         for row in self.cell_grid:
             for cell in row:
-                excel_cell = ws.cell(row=cell.y + 1, column=cell.x + 1, value=cell.status.value) # openpyxl will use 1-indexing
+                excel_cell = ws.cell(row=cell.y + 1 + offset_rows, column=cell.x + 1, value=cell.status.value) # openpyxl will use 1-indexing
                 excel_cell.fill = PatternFill(start_color=cell.color, fill_type="solid")
 
         wb.save(filepath)
@@ -267,3 +271,13 @@ class Board:
     def __refresh_color_set_holdings(self):
         """Refresh the held_rows and cols of the color sets in the board."""
         for color_set in self.color_sets.values(): color_set.refresh_holdings()
+
+    @staticmethod
+    def has_board_changed(board_1: 'Board', board_2: 'Board') -> bool:
+        for col_x in range(0, board_1.length):
+            for row_y in range(0, board_1.height):
+                cell_1 = board_1.cell_grid[row_y][col_x]
+                cell_2 = board_2.cell_grid[row_y][col_x]
+                if cell_1.status != cell_2.status: return True
+        return False
+

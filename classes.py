@@ -346,3 +346,15 @@ class Board:
                 if cell.status == CellStatus.BLANK: blank_cells.append(cell)
         return blank_cells
         
+    
+    def colorset_axis_holdings(self, axis: str) -> dict[str, frozenset[int]]:
+        colorset_axis_holdings = {}
+        if axis == 'row': held = "held_rows"
+        elif axis == 'col': held = "held_cols"
+        else: raise Exception()
+
+        for colorset in self.color_sets.values():
+            colorset_axis_holdings[colorset.color] = frozenset(colorset.__getattribute__(held))
+
+        return colorset_axis_holdings
+

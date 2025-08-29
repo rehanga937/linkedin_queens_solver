@@ -3,7 +3,7 @@ import copy
 from classes import Board, CellStatus
 
 
-FILEPATH = "test_files/20250828"
+FILEPATH = "test_files/20250827"
 
 board = Board.from_json(f"{FILEPATH}.json")
 turn = 0
@@ -19,47 +19,58 @@ while True:
 
     if board.is_game_over():
         print("All queens found!")
-        board.to_excel(f"{FILEPATH}.xlsx", turn)
         break
 
-    
+    board_after_queens_marked = copy.deepcopy(board)
 
-    # narrowing down logic
-    ## If a row's (or column's) remaining blank cells are all of the same color, then cross of all the other cells of the same color
-    # for row_y, row in enumerate(board.cell_grid):
-    #     unique_colors = set()
-    #     for cell in row:
-    #         if cell.status == CellStatus.BLANK:
-    #             unique_colors.add(cell.color)
-    #     if len(unique_colors) == 1:
-    #         color_set = board.color_sets[unique_colors.pop()]
-    #         if color_set.held_rows == {row_y}: continue # skip the turn stuff below
-    #         color_set.only_keep_one_axis(row_y, 'row')
-    #         print(f"Turn {turn}: Row {row_y} with only same color")
-    #         board.to_excel(f"{FILEPATH}.xlsx", turn)
-    #         turn += 1
-    
-    # for col_x in range(0, board.length):
-    #     unique_colors = set()
-    #     for row_y in range(0, board.height):
-    #         cell = board.cell_grid[row_y][col_x]
-    #         if cell.status == CellStatus.BLANK:
-    #             unique_colors.add(cell.color)
-    #     if len(unique_colors) == 1:
-    #         color_set = board.color_sets[unique_colors.pop()]
-    #         if color_set.held_cols == {col_x}: continue # skip the turn stuff below
-    #         color_set.only_keep_one_axis(col_x, 'col')
-    #         print(f"Turn {turn}: Column {col_x} with only same color")
-    #         board.to_excel(f"{FILEPATH}.xlsx", turn)
-    #         turn += 1
+
+    # Narrowing-down logic
 
     ## cross off cells that if were queens, would block other color sets
     blank_cells = board.get_blank_cells()
     for cell in blank_cells:
         if board.would_cell_block_color_set(cell): cell.status = CellStatus.CROSS
 
-    print(f"Turn {turn}: Crossed off cells that would block color sets")
-    board.to_excel(f"{FILEPATH}.xlsx", turn)
-    turn += 1
+    if Board.has_board_changed(board_after_queens_marked, board):
+        print(f"Turn {turn}: Crossed off cells that would block color sets")
+        board.to_excel(f"{FILEPATH}.xlsx", turn)
+        turn += 1
 
-    if not Board.has_board_changed(old_board, board): break
+
+    ## if n columns/rows contain the entirety of n colorsets, the cells of all other colors within those n columns/rows can be crossed
+    for axis in ['row', 'col']:
+        colorset_axis_holdings: dict[str, frozenset[int]] = board.colorset_axis_holdings(axis)
+        change_made = False
+        changes_made_on = set()
+
+        unique_sets_to_colors_mapping: dict[frozenset[int], list[str]] = {}
+
+        for color, holdings in colorset_axis_holdings.items():
+            if holdings not in unique_sets_to_colors_mapping.keys():
+                unique_sets_to_colors_mapping[holdings] = [color]
+            else:
+                unique_sets_to_colors_mapping[holdings].append(color)
+
+        for holdings, colors in unique_sets_to_colors_mapping.items():
+            if len(holdings) != len(colors): continue
+            # the narrowing-down-logic condition is met
+            # we can now cross off all other colors within these n columns/rows
+            for idx1 in holdings:
+                for idx2 in range(0, board.height):
+                    if axis == 'col': cell = board.cell_grid[idx2][idx1]
+                    else: cell = board.cell_grid[idx1][idx2]
+                    if cell.color not in colors and cell.status == CellStatus.BLANK: 
+                        cell.status = CellStatus.CROSS
+                        change_made = True
+                        changes_made_on.add(frozenset(holdings))
+
+        if change_made:
+            if axis == 'row': string = 'rows'
+            else: string = 'columns'
+            print(f"Turn {turn}: Axis color common used on {string} {changes_made_on}")
+            board.to_excel(f"{FILEPATH}.xlsx", turn)
+            turn += 1
+
+    if not Board.has_board_changed(old_board, board): # if no change has happened, we are stuck :(
+        print("We are stuck :(")
+        break

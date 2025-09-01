@@ -44,9 +44,9 @@ class ColorSet:
 
     color: str
     """expected to be a 6-digit color value hex: e.g. 'FF0010'"""
-    held_rows: set[int]
+    _held_rows: set[int]
     """The row numbers held by the ColorSet's blank cells. 0-indexed. e.g. if the color set's blank cells spans the first 3 rows, this set would have 0,1,2"""
-    held_cols: set[int]
+    _held_cols: set[int]
     """The column numbers held by the ColorSet's blank cells. 0-indexed. e.g. if the color set's blank cells spans the first 3 columns, this set would have 0,1,2"""
     cells: list[Cell]
 
@@ -58,22 +58,22 @@ class ColorSet:
         """
 
         self.color = color
-        self.held_cols = set(); self.held_rows = set()
+        self._held_cols = set(); self._held_rows = set()
 
         self.cells = []
         for cell in cells:
             if cell.color == self.color: 
                 self.cells.append(cell)
-                self.held_cols.add(cell.x)
-                self.held_rows.add(cell.y)
+                self._held_cols.add(cell.x)
+                self._held_rows.add(cell.y)
 
     def refresh_holdings(self):
         """Refresh the held_rows and cols of the object."""
-        self.held_cols = set(); self.held_rows = set()
+        self._held_cols = set(); self._held_rows = set()
         for cell in self.cells:
             if cell.status == CellStatus.BLANK:
-                self.held_cols.add(cell.x)
-                self.held_rows.add(cell.y)
+                self._held_cols.add(cell.x)
+                self._held_rows.add(cell.y)
 
     def get_blank_cells(self) -> set[Cell]:
         blank_cells = set()
@@ -393,8 +393,8 @@ class Board:
         self.__refresh_color_set_holdings()
 
         colorset_axis_holdings = {}
-        if axis == 'row': held = "held_rows"
-        elif axis == 'col': held = "held_cols"
+        if axis == 'row': held = "_held_rows"
+        elif axis == 'col': held = "_held_cols"
         else: raise Exception()
 
         for colorset in self.color_sets.values():

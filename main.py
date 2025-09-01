@@ -71,18 +71,18 @@ while True:
             board.to_excel(f"{FILEPATH}.xlsx", turn)
             turn += 1
 
-    board_after_narrowing = deepcopy(board)
-
     if not Board.has_board_changed(old_board, board): # if no change has happened, we will do the 1st narrowing-down logic axiom 2 times into the future
+        board_changed = False
         blank_cells = board.get_blank_cells()
         for cell in blank_cells:
             if board.would_cell_block_color_set_n(cell, 2): 
                 cell.status = CellStatus.CROSS
+                board_changed = True
                 break # only do one change at a time to avoid crossing off independent thinking ahead results
-    if Board.has_board_changed(board_after_narrowing, board):
-        print(f"Turn {turn}: Crossed off cells that would block color sets with n = 2")
-        board.to_excel(f"{FILEPATH}.xlsx", turn)
-        turn += 1
+        if board_changed:
+            print(f"Turn {turn}: Crossed off cells that would block color sets with n = 2")
+            board.to_excel(f"{FILEPATH}.xlsx", turn)
+            turn += 1
 
 
     if not Board.has_board_changed(old_board, board): # if no change has happened, we are stuck :(

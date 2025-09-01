@@ -1,4 +1,4 @@
-import copy
+from copy import deepcopy
 
 from classes import Board, CellStatus
 
@@ -9,7 +9,7 @@ board = Board.from_json(f"{FILEPATH}.json")
 turn = 0
 
 while True:
-    old_board = copy.deepcopy(board)
+    old_board = deepcopy(board)
 
     was_queens_marked = board.mark_queens_where_certain()
     if was_queens_marked:
@@ -21,7 +21,7 @@ while True:
         print("All queens found!")
         break
 
-    board_after_queens_marked = copy.deepcopy(board)
+    board_after_queens_marked = deepcopy(board)
 
 
     # Narrowing-down logic

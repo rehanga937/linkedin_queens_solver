@@ -7,6 +7,9 @@ FILEPATH = "test_files/20250827"
 
 board = Board.from_json(f"{FILEPATH}.json")
 turn = 0
+TIMES_TO_THINK_AHEAD_MIN = 2 # times to think ahead when it is hard to progress
+times_to_think_ahead = TIMES_TO_THINK_AHEAD_MIN
+TIMES_TO_THINK_AHEAD_MAX = 20
 
 while True:
     old_board = deepcopy(board)
@@ -80,11 +83,15 @@ while True:
                 board_changed = True
                 break # only do one change at a time to avoid crossing off independent thinking ahead results
         if board_changed:
-            print(f"Turn {turn}: Crossed off cells that would block color sets with n = 2")
+            print(f"Turn {turn}: Crossed off cells that would block color sets, thinking ahead {times_to_think_ahead} times.")
             board.to_excel(f"{FILEPATH}.xlsx", turn)
             turn += 1
 
 
-    if not Board.has_board_changed(old_board, board): # if no change has happened, we are stuck :(
-        print("We are stuck :(")
-        break
+    if not Board.has_board_changed(old_board, board): # if still no change has happened
+        times_to_think_ahead += 1
+        if times_to_think_ahead > TIMES_TO_THINK_AHEAD_MAX:
+            print(f"We are stuck, even tried thinking {TIMES_TO_THINK_AHEAD_MAX} moves ahead.")
+            break
+    else:
+        times_to_think_ahead = TIMES_TO_THINK_AHEAD_MIN # reset this value

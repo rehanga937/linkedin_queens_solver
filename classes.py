@@ -341,7 +341,8 @@ class Board:
         return False
     
     def would_cell_block_color_set_n(self, cell: Cell, n: int) -> bool:
-        if n == 0: return False
+        # if n == 0: return False
+        if n == 1: return self.would_cell_block_color_set(cell) # optimization, avoids unnecessary deepcopy below. It also makes the above line obsolete.
 
         # copy the board
         copy_board = deepcopy(self)

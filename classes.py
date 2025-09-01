@@ -1,5 +1,6 @@
 from enum import Enum
 import json
+from copy import deepcopy
 
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils import get_column_letter
@@ -338,6 +339,30 @@ class Board:
             if blank_cells.issubset(would_block_cells): return True
 
         return False
+    
+    def would_cell_block_color_set_n(self, cell: Cell, n: int) -> bool:
+        if n == 0: return False
+
+        # copy the board
+        copy_board = deepcopy(self)
+        the_cell = copy_board.get_cell_at(cell.x, cell.y)
+
+        if copy_board.would_cell_block_color_set(the_cell): return True
+        
+        copy_board.__mark_queen(the_cell)
+
+        blank_cells = copy_board.get_blank_cells()
+        results: list[bool] = []
+        for _cell in blank_cells:
+            result = copy_board.would_cell_block_color_set_n(_cell, n-1) # recursion
+            results.append(result)
+
+        # if at least one result is True, return True
+        for result in results:
+            if result: return True
+
+        return False
+
 
     def get_blank_cells(self) -> list[Cell]:
         blank_cells = []

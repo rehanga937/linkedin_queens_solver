@@ -6,11 +6,11 @@ You can learn about the puzzle and its rules at https://www.linkedin.com/help/li
 ## Board Examples
 A starting board:
 
-<img src="readme_images/example_board_start.png" alt="An example of a starting board" width="20%"/>
+<img src="readme_images/example_board_start.png" alt="An example of a starting board" width="33%"/>
 
 A solved board:
 
-<img src="readme_images/example_board_solved.png" alt="An example of a solved board" width="20%"/>
+<img src="readme_images/example_board_solved.png" alt="An example of a solved board" width="33%"/>
 
 # How 2 Use
 ## Prerequisites
@@ -50,9 +50,10 @@ This logic is applied in a loop in `main.py`.
 ## X-Y-Origin Convention
 X-coord is from left to right. Y-coord is from top to bottom. Origin is at the top-left of the board. 0-indexing is used.
 
-<img src="readme_images/x-y-origin_convention_example.png" alt="X-Y coordinate convention showed with an example" width="33%"/>
+<img src="readme_images/x-y-origin_convention_example.png" alt="X-Y coordinate convention showed with an example" width="50%"/>
 
 ## Examples
 The `examples` directory contains 2 solved examples.
+
 
 <img src="readme_images/terminal_output_for_examples.png" alt="Screenshot of the terminal output of the 2 examples been solved" width="50%"/>

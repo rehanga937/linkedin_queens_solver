@@ -287,8 +287,6 @@ class Board:
                 queen_marked = True
             blank_cells = [] # reset for next color set
 
-        self.__refresh_color_set_holdings()
-
         return queen_marked
 
     
@@ -392,6 +390,8 @@ class Board:
         Returns:
             dict[str, frozenset[int]]: Dictionary mapping color to the set of rows or columns held by it.
         """
+        self.__refresh_color_set_holdings()
+
         colorset_axis_holdings = {}
         if axis == 'row': held = "held_rows"
         elif axis == 'col': held = "held_cols"

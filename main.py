@@ -4,6 +4,7 @@ from classes import Board, CellStatus
 
 
 FILEPATH = "test_files/20250827"
+print(f"Filepath: {FILEPATH}")
 
 board = Board.from_json(f"{FILEPATH}.json")
 turn = 0

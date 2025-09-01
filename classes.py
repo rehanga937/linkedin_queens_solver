@@ -49,7 +49,6 @@ class ColorSet:
     held_cols: set[int]
     """The column numbers held by the ColorSet's blank cells. 0-indexed. e.g. if the color set's blank cells spans the first 3 columns, this set would have 0,1,2"""
     cells: list[Cell]
-    complete: bool
 
     def __init__(self, cells: list[Cell], color: str):
         """_summary_
@@ -59,7 +58,6 @@ class ColorSet:
         """
 
         self.color = color
-        self.complete = False
         self.held_cols = set(); self.held_rows = set()
 
         self.cells = []
@@ -82,20 +80,6 @@ class ColorSet:
         for cell in self.cells:
             if cell.status == CellStatus.BLANK: blank_cells.add(cell)
         return blank_cells
-    
-    def only_keep_one_axis(self, index: int, axis: str):
-        """Only keep the particular row or column. Cross off all other cells in this color set.
-
-        Args:
-            index (int): The index of the row or column to keep
-            axis (str): 'row' or 'col'
-        """
-        if axis == 'row': coord = 'y'
-        elif axis == 'col': coord = 'x'
-        else: raise Exception()
-
-        for cell in self.cells:
-            if cell.__getattribute__(coord) != index: cell.status = CellStatus.CROSS
 
 
 class Board:
@@ -177,6 +161,13 @@ class Board:
 
     def to_excel(self, filepath: str, offset: int = 0):
         """Save the board (in its current state) to an excel file for visualization.
+
+        If offset is 0, creates new/overwrites excel file. Else adds to the existing excel file.
+        This is done so that incremental stages of solving of the board can be printed vertically on the same excel file.
+
+        Args:
+            filepath (str): _description_
+            offset (int, optional): How many rows to skip ahead when printing the board to excel cells. If offset is 0, creates new/overwrites excel file. Else adds to the existing excel file. Defaults to 0.
         """
         if offset == 0:
             wb = Workbook()
@@ -307,6 +298,8 @@ class Board:
 
     @staticmethod
     def has_board_changed(board_1: 'Board', board_2: 'Board') -> bool:
+        """Checks if statuses of cells (blank, crossed, queen) are the same between the 2 boards.
+        """
         for col_x in range(0, board_1.length):
             for row_y in range(0, board_1.height):
                 cell_1 = board_1.cell_grid[row_y][col_x]
@@ -341,6 +334,20 @@ class Board:
         return False
     
     def would_cell_block_color_set_n(self, cell: Cell, n: int) -> bool:
+        """Assuming a cell is a Queen, would it block any other color set completely?
+
+        Uses recursion to check n number of moves ahead.
+        For example it might be required to check 2 moves ahead:
+        There can be a cell that would not block any other colorset completely by itself, however marking any of the remaining cells that would be left after it
+        is marked queen would result in a colorset getting blocked.
+
+        Args:
+            cell (Cell): _description_
+            n (int): How many moves to check ahead.
+
+        Returns:
+            bool: _description_
+        """
         # if n == 0: return False
         if n == 1: return self.would_cell_block_color_set(cell) # optimization, avoids unnecessary deepcopy below. It also makes the above line obsolete.
 
@@ -374,6 +381,17 @@ class Board:
         
     
     def colorset_axis_holdings(self, axis: str) -> dict[str, frozenset[int]]:
+        """Returns dictionary mapping color to the set of rows or columns held by it.
+
+        Args:
+            axis (str): 'row' or 'col'
+
+        Raises:
+            Exception: If you enter something other than 'row' or 'col' for the axis argument.
+
+        Returns:
+            dict[str, frozenset[int]]: Dictionary mapping color to the set of rows or columns held by it.
+        """
         colorset_axis_holdings = {}
         if axis == 'row': held = "held_rows"
         elif axis == 'col': held = "held_cols"

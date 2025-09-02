@@ -1,9 +1,10 @@
 from copy import deepcopy
+import sys
 
 from classes import Board, CellStatus
 
 
-FILEPATH = "test_files/20250827"
+FILEPATH = sys.argv[1]
 print(f"Filepath: {FILEPATH}")
 
 board = Board.from_json(f"{FILEPATH}.json")

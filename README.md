@@ -21,9 +21,13 @@ Install the python packages from `requirements.txt`. It just contains `openpyxl`
     - It provides an as-of-now vibe-coded tkinter GUI.
     - You can create starting puzzles via the GUI and save them as .json files.
     - You can also load .json files to visualize them.
-- Set the `FILEPATH` variable without the '.json' extension in `main.py` and run it.
+- Run `main.py` with the filepath as the first and only CLI argument. Exclude the file extension from the argument.
     - The solving steps will be printed on the terminal.
     - The board solution with its solution steps will be printed out in an excel file with the same filepath and filename as the .json file.
+    ```bash
+    python3 main.py tests/puzzle_starts/20250408
+    ```
+
 
 # How Does it Work?
 In addition to the rules of Queen placement:

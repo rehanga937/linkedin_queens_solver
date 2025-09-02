@@ -190,6 +190,32 @@ class Board:
 
         wb.save(filepath)
 
+    def to_status_grid(self) -> list[list[str]]:
+        """Save the statuses of the board's cells to a list of lists and save as a pickle file.
+
+        Used for testing purposes.
+        An example of the list of lists:
+        [
+            [' ', 'x', '♕'],
+            ['x', 'x', ' '],
+            ['x', 'x', ' ']
+        ]
+
+        Args:
+            filepath (str): filepath without the '.pkl' extension
+
+        Returns:
+            list[list[str]]: List of lists (rows) containing the cell statuses (see the function summary for an example)
+        """
+        grid = []
+        for row in self.cell_grid:
+            row_statuses = []
+            for cell in row:
+                row_statuses.append(cell.status.value)
+            grid.append(row_statuses)
+        return grid
+
+
     def __would_block_cells(self, cell: Cell) -> set[Cell]:
         """If the input cell is made queen, get the set of cells that it would block.
         """

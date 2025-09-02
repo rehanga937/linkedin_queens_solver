@@ -1,11 +1,16 @@
 from copy import deepcopy
 import sys
+import pickle
 
 from classes import Board, CellStatus
 
 
 FILEPATH = sys.argv[1]
 print(f"Filepath: {FILEPATH}")
+SHOULD_GENERATE_STATUSES = False
+try: 
+    if sys.argv[2] == 'test': SHOULD_GENERATE_STATUSES = True
+except IndexError: pass
 
 board = Board.from_json(f"{FILEPATH}.json")
 turn = 0
@@ -24,6 +29,10 @@ while True:
 
     if board.is_game_over():
         print("All queens found!")
+        if SHOULD_GENERATE_STATUSES:
+            with open(f"{FILEPATH}.pkl", "wb") as f:
+                pickle.dump(board.to_status_grid(), f)
+            print("Status pickle file generated.")
         break
 
     board_after_queens_marked = deepcopy(board)

@@ -27,7 +27,7 @@ Install the python packages from `requirements.txt`. It just contains `openpyxl`
     ```bash
     python3 main.py tests/puzzle_starts/20250408
     ```
-
+    - If generating pickle file of the board's cell statuses for testing, add 'test' as an additional CLI argument.
 
 # How Does it Work?
 In addition to the rules of Queen placement:

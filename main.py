@@ -57,26 +57,26 @@ while True:
         change_made = False
         changes_made_on = set()
 
-        unique_sets_to_colors_mapping: dict[frozenset[int], list[str]] = {}
-
-        for color, holdings in colorset_axis_holdings.items():
-            if holdings not in unique_sets_to_colors_mapping.keys():
-                unique_sets_to_colors_mapping[holdings] = [color]
-            else:
-                unique_sets_to_colors_mapping[holdings].append(color)
-
-        for holdings, colors in unique_sets_to_colors_mapping.items():
-            if len(holdings) != len(colors): continue
-            # the narrowing-down-logic condition is met
-            # we can now cross off all other colors within these n columns/rows
-            for idx1 in holdings:
-                for idx2 in range(0, board.height):
-                    if axis == 'col': cell = board.cell_grid[idx2][idx1]
-                    else: cell = board.cell_grid[idx1][idx2]
-                    if cell.color not in colors and cell.status == CellStatus.BLANK: 
-                        cell.status = CellStatus.CROSS
-                        change_made = True
-                        changes_made_on.add(frozenset(holdings))
+        # for each color, see what other color sets have the same or a subset of holdings
+        for color, my_holdings  in colorset_axis_holdings.items():
+            for done_holding in changes_made_on:
+                if my_holdings.issubset(done_holding): continue
+            common_colors = [color]
+            for other_color, others_holdings in colorset_axis_holdings.items():
+                if other_color == color: continue
+                if len(others_holdings) == 0: continue # important, otherwise it would be considered a subset
+                if others_holdings.issubset(my_holdings): common_colors.append(other_color)
+            if len(common_colors) == len(my_holdings):
+                # the narrowing-down-logic condition is met
+                # we can now cross off all other colors within these n columns/rows
+                for idx1 in my_holdings:
+                    for idx2 in range(0, board.height):
+                        if axis == 'col': cell = board.cell_grid[idx2][idx1]
+                        else: cell = board.cell_grid[idx1][idx2]
+                        if cell.color not in common_colors and cell.status == CellStatus.BLANK: 
+                            cell.status = CellStatus.CROSS
+                            change_made = True
+                            changes_made_on.add(frozenset(my_holdings))
 
         if change_made:
             if axis == 'row': string = 'rows'

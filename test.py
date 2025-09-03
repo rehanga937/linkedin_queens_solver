@@ -19,11 +19,20 @@ all_tests_passed = True
 
 for puzzle in puzzles:
     subprocess.run(["python3", "main.py",f"{PUZZLE_START_DIRECTORY_PATH}/{puzzle}", 'test']) # run main.py on each puzzle in the directory
-    os.remove(f"{PUZZLE_START_DIRECTORY_PATH}/{puzzle}.xlsx") # remove the generated excel file, we don't need it
+    try: os.remove(f"{PUZZLE_START_DIRECTORY_PATH}/{puzzle}.xlsx") # remove the generated excel file, we don't need it
+    except FileNotFoundError:
+        print(f"{RED}Puzzle {puzzle} excel not generated!{RESET}")
+        all_tests_passed = False
+        continue
 
     # load the generated pickle file
-    with open(f"{PUZZLE_START_DIRECTORY_PATH}/{puzzle}.pkl", "rb") as f:
-        generated_statuses = pickle.load(f)
+    try:
+        with open(f"{PUZZLE_START_DIRECTORY_PATH}/{puzzle}.pkl", "rb") as f:
+            generated_statuses = pickle.load(f)
+    except FileNotFoundError:
+        print(f"{RED}Puzzle {puzzle} pickle not found!{RESET}")
+        all_tests_passed = False
+        continue
 
     # load the truth pickle file
     with open(f"{TRUTH_DIRECTORY_PATH}/{puzzle}.pkl", "rb") as f:

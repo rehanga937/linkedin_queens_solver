@@ -28,6 +28,9 @@ Install the python packages from `requirements.txt`. It just contains `openpyxl`
     python3 main.py tests/puzzle_starts/20250408
     ```
     - If generating pickle file of the board's cell statuses for testing, add 'test' as an additional CLI argument.
+    ```bash
+    python3 main.py tests/puzzle_starts/20250408 test
+    ```
 
 # How Does it Work?
 In addition to the rules of Queen placement:
@@ -43,12 +46,14 @@ In addition to the rules of Queen placement:
 
 This logic is applied in a loop in `main.py`.
 
-# Limitations
+# Limitations and Future Improvements
 - Assumes the puzzle is solvable.
 - Assumes the puzzle only has one solution.
 - If the above 2 conditions are not met, the program may place queens or crosses at invalid positions.
 - GUI currently does not support the creation of starting boards with pre-placed queens.
 - The program has not been tested on puzzles that require the thinking of 3 or more moves ahead.
+- Logic loop:
+    - Right now main.py simply executes the Queen marking rules and the 2 axioms in a loop. But maybe it's possible for the program to choose which rule or axiom to execute.
 
 # Technical Notes
 ## X-Y-Origin Convention

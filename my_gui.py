@@ -1,0 +1,82 @@
+import tkinter as tk
+from tkinter import ttk, colorchooser
+
+
+root = tk.Tk()
+
+# global variables that persist while the mainloop runs
+cells: list[tk.Label] = []
+chosen_color = "white" # initial color
+
+# mainframe
+mainframe = ttk.Frame(root) # TODO: add padding
+mainframe.grid(row=0, column=0)
+
+# first row (grid size input)
+grid_size_input_label = ttk.Label(mainframe, text="Grid Size")
+grid_size_input_label.grid(row=0, column=0)
+grid_size_input = ttk.Entry(mainframe)
+grid_size_input.grid(row=0, column=1)
+
+# third row (color picker)
+color_picker_label = ttk.Label(mainframe, text="Pick Color")
+color_picker_label.grid(row=2, column=0)
+
+def pick_color():
+    global chosen_color
+    chosen_color = colorchooser.askcolor(initialcolor=chosen_color)[1] # [1] to choose the hex code. For example the entire returned tuple might look like this: ((255, 0, 0), '#ff0000')
+    color_picker_button.config(bg=chosen_color) # update the color of the button 
+
+color_picker_button = tk.Button(
+    mainframe, 
+    command=pick_color,
+    height=2,
+    width=4,
+    bg=chosen_color # set the initial color
+)
+
+color_picker_button.grid(row=2, column=1)
+
+# fourth row (queens cell grid)
+cell_grid = ttk.Frame(mainframe)
+cell_grid.grid(row=3, columnspan=2)
+
+def change_cell_color(event: tk.Event):
+    global chosen_color
+    cell: tk.Widget = event.widget
+    cell.config(bg=chosen_color)
+
+def create_grid():
+    global cells
+
+    # reset cells
+    for cell in cells: cell.destroy()
+    cells = []
+    # TODO: if not int validation
+
+    max_index = int(grid_size_input.get())
+    for row_number in range(0, max_index):
+        for col_number in range(0, max_index):
+            cell = tk.Label(
+                cell_grid, 
+                fg="black", bg="white", # i guess fg affects the border color
+                # text="t", 
+                borderwidth=2, relief="solid", 
+                # padx=2, pady=2, # this refers to the interior padding
+                height=2, width=4 # it seems to make a square, height should be half the width
+            )
+            cell.grid(
+                row=row_number, column=col_number, 
+                padx=2, pady=2 # this refers to the external padding. i.e. the spacing between individual cells
+            )
+            cell.bind("<Button-3>", func=change_cell_color) # on right-click, change cell color
+            cells.append(cell)
+
+
+# second row (create grid button)
+create_grid_button = ttk.Button(mainframe, command=create_grid, text="Create Grid")
+create_grid_button.grid(row=1)
+
+
+
+root.mainloop()

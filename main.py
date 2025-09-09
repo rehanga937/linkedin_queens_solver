@@ -2,7 +2,7 @@ from copy import deepcopy
 import sys
 import pickle
 
-from classes import Board, CellStatus
+from src.queens_board import Board, CellStatus
 
 
 FILEPATH = sys.argv[1]

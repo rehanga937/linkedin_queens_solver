@@ -82,9 +82,3 @@ class GUI:
                 cells.append(cell)
 
 
-
-
-root_widget = tk.Tk()
-_ = GUI(root_widget)
-
-root_widget.mainloop()

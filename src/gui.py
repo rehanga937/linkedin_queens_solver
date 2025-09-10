@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, colorchooser
 
 from src.queens_board import Board, Cell
+from src.solving_logic import SolvingLogic
 
 
 class GUI:
@@ -116,5 +117,5 @@ class GUI:
 
     def __mark_queens(self):
         self.__update_gui_to_board()
-        self.__board.mark_queens_where_certain()
+        SolvingLogic.mark_queens_where_certain(self.__board)
         self.__update_board_to_gui()

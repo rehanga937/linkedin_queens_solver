@@ -17,7 +17,7 @@ class GUI:
         root.title("LinkedIn Queens Solver")
 
         # mainframe
-        mainframe = ttk.Frame(root) # TODO: add padding
+        mainframe = ttk.Frame(root)
         mainframe.grid(row=0, column=0)
 
         # first row (grid size input)
@@ -83,9 +83,12 @@ class GUI:
         # reset cells
         for cell in self.__gui_cells: cell.destroy()
         self.__gui_cells = []
-        # TODO: if not int validation
 
-        max_index = int(self.__grid_size_input.get())
+        try: 
+            max_index = int(self.__grid_size_input.get())
+            if max_index < 1 or max_index > 20: return
+        except ValueError: return
+
         self.__grid_size = max_index
         for row_number in range(0, max_index):
             for col_number in range(0, max_index):
@@ -138,7 +141,14 @@ class GUI:
 
     def axiom_1(self):
         self.__update_gui_to_board()
-        times_to_think_ahead = int(self.think_ahead.get()) # TODO: type validation and  > 1
+        try: 
+            times_to_think_ahead = int(self.think_ahead.get())
+            if times_to_think_ahead < 1 or times_to_think_ahead > 20: 
+                times_to_think_ahead = 1
+                self.think_ahead.insert(tk.END, '1') # default value
+        except ValueError: 
+            times_to_think_ahead = 1
+            self.think_ahead.insert(tk.END, '1') # default value
         SolvingLogic.axiom_1_should_not_block_color_sets(self.__board, times_to_think_ahead)
         self.__update_board_to_gui()
 

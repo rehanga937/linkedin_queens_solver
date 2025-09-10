@@ -47,6 +47,9 @@ class SolvingLogic:
 
     @staticmethod
     def auto_solve(board: Board):
+        # Basically a copy of the old main.py
+        # TODO: Could refactor a bit using the other functions in this class
+
         TIMES_TO_THINK_AHEAD_MAX = 20
         TIMES_TO_THINK_AHEAD_MIN = 2
         times_to_think_ahead = TIMES_TO_THINK_AHEAD_MIN

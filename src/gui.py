@@ -8,6 +8,11 @@ from src.solving_logic import SolvingLogic
 class GUI:
 
     __gui_cells: list[tk.Label] = []
+    """Holds references to the gui cells. Keep this in grid order (like reading a book from left to right, top to bottom)
+
+    (So that cells can be accessed easily via this convention: gui_cell = self.__gui_cells[x + self.__grid_size * y])
+    """
+
     __chosen_color = "white" # initial color
     __grid_size: int = 0
     __board: Board
@@ -67,6 +72,8 @@ class GUI:
 
 
     def __pick_color(self):
+        """This will change the self.__chosen_color variable and update the color picker button.
+        """
         self.__chosen_color = colorchooser.askcolor(initialcolor=self.__chosen_color)[1] # [1] to choose the hex code. For example the entire returned tuple might look like this: ((255, 0, 0), '#ff0000')
         self.__color_picker_button.config(bg=self.__chosen_color) # update the color of the button 
 
@@ -75,15 +82,23 @@ class GUI:
 
 
     def __change_cell_color(self, event: tk.Event):
+        """Change a cell color to the current self.__chosen_color
+
+        Args:
+            event (tk.Event): This tk.Event should correspond to a gui cell.
+        """
         cell: tk.Label = event.widget
         cell.config(bg=self.__chosen_color)
 
     def __create_grid(self):
+        """Function to create a cell grid (the queens board) in the GUI with whatever grid size the user has entered
+        """
 
         # reset cells
         for cell in self.__gui_cells: cell.destroy()
         self.__gui_cells = []
 
+        # validation
         try: 
             max_index = int(self.__grid_size_input.get())
             if max_index < 1 or max_index > 20: return
@@ -127,19 +142,21 @@ class GUI:
         
 
     def __update_board_to_gui(self):
-        # TODO: Assume self._gui_cells is sorted
         for y, row in enumerate(self.__board.cell_grid):
             for x, cell in enumerate(row):
                 gui_cell = self.__gui_cells[x + self.__grid_size * y]
-                # if cell.status == CellStatus.BLANK: continue
                 gui_cell.config(text=cell.status.value, bg=cell.color)
 
     def __mark_queens(self):
+        """For the button command.
+        """
         self.__update_gui_to_board()
         SolvingLogic.mark_queens_where_certain(self.__board)
         self.__update_board_to_gui()
 
     def axiom_1(self):
+        """For the button command.
+        """
         self.__update_gui_to_board()
         try: 
             times_to_think_ahead = int(self.think_ahead.get())
@@ -153,11 +170,15 @@ class GUI:
         self.__update_board_to_gui()
 
     def axiom_2(self):
+        """For the button command.
+        """
         self.__update_gui_to_board()
         SolvingLogic.axiom_2_color_common_holdings(self.__board)
         self.__update_board_to_gui()
 
     def auto_solve(self):
+        """For the button command.
+        """
         self.__update_gui_to_board()
         SolvingLogic.auto_solve(self.__board)
         self.__update_board_to_gui()

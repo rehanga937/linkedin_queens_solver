@@ -56,7 +56,14 @@ class GUI:
         mark_queens_button.grid(row=4, column=0)
         axiom1_button.grid(row=4,column=1)
         axiom2_button.grid(row=4,column=2)
-        auto_solve_button.grid(row=4,column=3)        
+        auto_solve_button.grid(row=4,column=3) 
+
+        # sixth row (solving options)
+        times_to_think_ahead_label = tk.Label(mainframe, text="Axiom 1 - no. of moves to think ahead")
+        times_to_think_ahead_label.grid(row=5, column=0, columnspan=2)
+        self.think_ahead = ttk.Entry(mainframe)
+        self.think_ahead.grid(row=5, column=2)
+        self.think_ahead.insert(tk.END, '1') # default value
 
 
     def __pick_color(self):
@@ -131,7 +138,8 @@ class GUI:
 
     def axiom_1(self):
         self.__update_gui_to_board()
-        SolvingLogic.axiom_1_should_not_block_color_sets(self.__board)
+        times_to_think_ahead = int(self.think_ahead.get()) # TODO: type validation and  > 1
+        SolvingLogic.axiom_1_should_not_block_color_sets(self.__board, times_to_think_ahead)
         self.__update_board_to_gui()
 
     def axiom_2(self):

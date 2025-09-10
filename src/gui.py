@@ -1,11 +1,15 @@
 import tkinter as tk
 from tkinter import ttk, colorchooser
 
+from src.queens_board import Board, Cell
+
 
 class GUI:
 
-    __cells: list[tk.Label] = []
+    __gui_cells: list[tk.Label] = []
     __chosen_color = "white" # initial color
+    __grid_size: int = 0
+    __board: Board
 
     def __init__(self, root: tk.Tk):
         
@@ -43,6 +47,10 @@ class GUI:
         create_grid_button = ttk.Button(mainframe, command=self.__create_grid, text="Create Grid")
         create_grid_button.grid(row=1)
 
+        # fifth row (solver buttons)
+        mark_queens_button = ttk.Button(mainframe, text="Mark Queens", command=self.__mark_queens)
+        mark_queens_button.grid(row=4, column=0)
+
 
     def __pick_color(self):
         self.__chosen_color = colorchooser.askcolor(initialcolor=self.__chosen_color)[1] # [1] to choose the hex code. For example the entire returned tuple might look like this: ((255, 0, 0), '#ff0000')
@@ -53,17 +61,18 @@ class GUI:
 
 
     def __change_cell_color(self, event: tk.Event):
-        cell: tk.Widget = event.widget
+        cell: tk.Label = event.widget
         cell.config(bg=self.__chosen_color)
 
     def __create_grid(self):
 
         # reset cells
-        for cell in self.__cells: cell.destroy()
-        cells = []
+        for cell in self.__gui_cells: cell.destroy()
+        self.__gui_cells = []
         # TODO: if not int validation
 
         max_index = int(self.__grid_size_input.get())
+        self.__grid_size = max_index
         for row_number in range(0, max_index):
             for col_number in range(0, max_index):
                 cell = tk.Label(
@@ -79,6 +88,33 @@ class GUI:
                     padx=2, pady=2 # this refers to the external padding. i.e. the spacing between individual cells
                 )
                 cell.bind("<Button-3>", func=self.__change_cell_color) # on right-click, change cell color
-                cells.append(cell)
+                self.__gui_cells.append(cell)
 
+    
+    def __update_gui_to_board(self):
+        # first create Cells
+        cells: list[Cell] = []
+        for gui_cell in self.__gui_cells:
+            grid_information = gui_cell.grid_info()
+            column_index = grid_information['column']
+            row_index = grid_information['row']
+            color_str = gui_cell.cget("bg")
+            cell = Cell(x=column_index, y=row_index, color=color_str)
+            cells.append(cell)
 
+        # then create Board
+        self.__board = Board(self.__grid_size, self.__grid_size, cells)
+        
+
+    def __update_board_to_gui(self):
+        # TODO: Assume self._gui_cells is sorted
+        for y, row in enumerate(self.__board.cell_grid):
+            for x, cell in enumerate(row):
+                gui_cell = self.__gui_cells[x + self.__grid_size * y]
+                # if cell.status == CellStatus.BLANK: continue
+                gui_cell.config(text=cell.status.value, bg=cell.color)
+
+    def __mark_queens(self):
+        self.__update_gui_to_board()
+        self.__board.mark_queens_where_certain()
+        self.__update_board_to_gui()

@@ -50,7 +50,7 @@ class GUI:
         self.__cell_grid.grid(row=3, columnspan=2)
 
         # second row (create grid button)
-        create_grid_button = ttk.Button(mainframe, command=self.__create_grid, text="Create Grid")
+        create_grid_button = ttk.Button(mainframe, command=self.__create_grid, text="Create Grid / Reset")
         create_grid_button.grid(row=1)
 
         # fifth row (solver buttons)

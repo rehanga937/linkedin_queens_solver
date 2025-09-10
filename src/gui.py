@@ -1,8 +1,11 @@
+import sys
+
 import tkinter as tk
 from tkinter import ttk, colorchooser
 
 from src.queens_board import Board, Cell, CellStatus
 from src.solving_logic import SolvingLogic
+from src.copy_stdout import STDOutHandler
 
 
 class GUI:
@@ -90,6 +93,12 @@ class GUI:
         self.think_ahead = ttk.Entry(solving_controls)
         self.think_ahead.grid(row=1, column=2)
         self.think_ahead.insert(tk.END, '1') # default value
+
+        ## terminal
+        terminal = tk.Text(mainframe, wrap="word", bg="black", fg="white", insertbackground="white", height=12)
+        terminal.grid(row=3, padx=10, pady=10)
+        # text.pack(expand=True, fill="both")
+        sys.stdout = STDOutHandler(terminal) # tell sys.stdout that our STDOutHandler object is the new stdout
 
         # padding
         for child in grid_configs.winfo_children():

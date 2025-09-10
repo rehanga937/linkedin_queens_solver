@@ -50,7 +50,13 @@ class GUI:
 
         # fifth row (solver buttons)
         mark_queens_button = ttk.Button(mainframe, text="Mark Queens", command=self.__mark_queens)
+        axiom1_button = ttk.Button(mainframe, text="Axiom 1", command=self.axiom_1)
+        axiom2_button = ttk.Button(mainframe, text="Axiom 2", command=self.axiom_2)
+        auto_solve_button = ttk.Button(mainframe, text="Auto Solve", command=self.auto_solve)
         mark_queens_button.grid(row=4, column=0)
+        axiom1_button.grid(row=4,column=1)
+        axiom2_button.grid(row=4,column=2)
+        auto_solve_button.grid(row=4,column=3)        
 
 
     def __pick_color(self):
@@ -121,4 +127,19 @@ class GUI:
     def __mark_queens(self):
         self.__update_gui_to_board()
         SolvingLogic.mark_queens_where_certain(self.__board)
+        self.__update_board_to_gui()
+
+    def axiom_1(self):
+        self.__update_gui_to_board()
+        SolvingLogic.axiom_1_should_not_block_color_sets(self.__board)
+        self.__update_board_to_gui()
+
+    def axiom_2(self):
+        self.__update_gui_to_board()
+        SolvingLogic.axiom_2_color_common_holdings(self.__board)
+        self.__update_board_to_gui()
+
+    def auto_solve(self):
+        self.__update_gui_to_board()
+        SolvingLogic.auto_solve(self.__board)
         self.__update_board_to_gui()

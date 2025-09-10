@@ -396,14 +396,26 @@ class Board:
         copy_board.__mark_queen(the_cell)
 
         blank_cells = copy_board.get_blank_cells()
-        results: list[bool] = []
+        results: list[tuple[Cell, bool]] = []
         for _cell in blank_cells:
             result = copy_board.would_cell_block_color_set_n(_cell, n-1) # recursion
-            results.append(result)
+            results.append((_cell, result))
 
-        # if at least one result is True, return True
-        for result in results:
-            if result: return True
+        # if in at least one color set, all the cells have returned True, return True
+        colors_results: dict[str, list[bool]] = {}
+        for cell, result in results:
+            if cell.color not in colors_results.keys():
+                colors_results[cell.color] = [result]
+            else:
+                colors_results[cell.color].append(result)
+        # print(colors_results)
+        for values in colors_results.values():
+            atleast_one_false = False
+            for value in values:
+                if value == False: 
+                    atleast_one_false = True
+                    break
+            if not atleast_one_false: return True
 
         return False
 

@@ -13,8 +13,9 @@ class SolvingLogic:
     def axiom_1_should_not_block_color_sets(board: Board, n = 1):
         blank_cells = board.get_blank_cells()
         for cell in blank_cells:
-            if board.would_cell_block_color_set_n(cell, n): cell.status = CellStatus.CROSS
-            if n > 1: break
+            if board.would_cell_block_color_set_n(cell, n): 
+                cell.status = CellStatus.CROSS
+                if n > 1: break
 
     @staticmethod
     def axiom_2_color_common_holdings(board: Board):
@@ -50,7 +51,7 @@ class SolvingLogic:
         TIMES_TO_THINK_AHEAD_MIN = 2
         times_to_think_ahead = TIMES_TO_THINK_AHEAD_MIN
         turn = 0
-        
+
         while True:
             old_board = deepcopy(board)
 

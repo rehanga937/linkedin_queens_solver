@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, colorchooser
 
-from src.queens_board import Board, Cell
+from src.queens_board import Board, Cell, CellStatus
 from src.solving_logic import SolvingLogic
 
 
@@ -100,7 +100,10 @@ class GUI:
             column_index = grid_information['column']
             row_index = grid_information['row']
             color_str = gui_cell.cget("bg")
-            cell = Cell(x=column_index, y=row_index, color=color_str)
+            text = gui_cell.cget("text")
+            if text == None: text = ""
+            cell_status = CellStatus.get_status_for(text)
+            cell = Cell(x=column_index, y=row_index, color=color_str, status=cell_status)
             cells.append(cell)
 
         # then create Board

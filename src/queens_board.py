@@ -14,6 +14,18 @@ class CellStatus(Enum):
     CROSS = "x"
     QUEEN = chr(0x2655) # ♕
 
+    def get_status_for(char: str) -> 'CellStatus':
+        map = {
+            "": CellStatus.BLANK,
+            " ": CellStatus.BLANK,
+            "x": CellStatus.CROSS,
+            "♕": CellStatus.QUEEN
+        }
+        try:
+            return map[char]
+        except KeyError:
+            raise Exception("Unidentified character")
+
 
 class Cell:
     """A single cell of the Queens board
@@ -27,7 +39,7 @@ class Cell:
     """y-coordinate (0-indexing) \n\n x-coord is from left to right. y-coord is from top to bottom. Origin is at the top-left of the board."""
     status: CellStatus
 
-    def __init__(self, x: int, y: int, color: str):
+    def __init__(self, x: int, y: int, color: str, status: CellStatus = CellStatus.BLANK):
         """x-coord is from left to right. y-coord is from top to bottom. Origin is at the top-left of the board.
 
         Args:
@@ -35,7 +47,7 @@ class Cell:
         """
         self.color = color; 
         self.x = x; self.y = y
-        self.status = CellStatus.BLANK
+        self.status = status
 
 
 class ColorSet:

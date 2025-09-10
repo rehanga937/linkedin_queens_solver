@@ -18,57 +18,84 @@ class GUI:
     __board: Board
 
     def __init__(self, root: tk.Tk):
+
+        # Widget structure
+        # It is intended for the mainframe to have 4 horizontal sections
+        # Top section is for the grid config controls
+        # Next section is the cell grid - i.e. the queens board
+        # 3rd section has the solving buttons
+        # 4th section holds a print terminal
         
         root.title("LinkedIn Queens Solver")
 
+        # so if the window is resized by the user, somehow this makes everything stay in the middle. Still not familiar with how this works.
+        root.rowconfigure(0, weight=1)
+        root.columnconfigure(0, weight=1)
+
         # mainframe
         mainframe = ttk.Frame(root)
-        mainframe.grid(row=0, column=0)
+        mainframe.grid(
+            row=0, column=0,
+            # sticky=tk.EW # no clue how this works
+        )
 
-        # first row (grid size input)
-        grid_size_input_label = ttk.Label(mainframe, text="Grid Size")
+        ## grid configuration frame
+        grid_configs = ttk.Frame(mainframe)
+        grid_configs.grid(row=0, padx=10, pady=10) # this padding seems to be the interior padding for the entire grid_configs frame
+
+        ### first row of grid config frame (grid size input)
+        grid_size_input_label = ttk.Label(grid_configs, text="Grid Size")
         grid_size_input_label.grid(row=0, column=0)
-        self.__grid_size_input = ttk.Entry(mainframe)
+        self.__grid_size_input = ttk.Entry(grid_configs)
         self.__grid_size_input.grid(row=0, column=1)
 
-        # third row (color picker)
-        color_picker_label = ttk.Label(mainframe, text="Pick Color")
-        color_picker_label.grid(row=2, column=0)
+        ### third row of grid config frame (color picker)
+        color_picker_label = ttk.Label(grid_configs, text="Pick Color")
+        color_picker_label.grid(row=2, column=0, sticky="e")
 
         self.__color_picker_button = tk.Button(
-            mainframe, 
+            grid_configs, 
             command=self.__pick_color,
             height=2,
             width=4,
             bg=self.__chosen_color # set the initial color
         )
+        self.__color_picker_button.grid(row=2, column=1, sticky="w")
 
-        self.__color_picker_button.grid(row=2, column=1)
-
-        # fourth row (queens cell grid)
+        ## (queens cell grid)
         self.__cell_grid = ttk.Frame(mainframe)
-        self.__cell_grid.grid(row=3, columnspan=2)
+        self.__cell_grid.grid(row=1, padx=10, pady=10)
 
-        # second row (create grid button)
-        create_grid_button = ttk.Button(mainframe, command=self.__create_grid, text="Create Grid / Reset")
+        ### second row of grid config frame (create grid button)
+        create_grid_button = ttk.Button(grid_configs, command=self.__create_grid, text="Create Grid / Reset")
         create_grid_button.grid(row=1)
 
-        # fifth row (solver buttons)
-        mark_queens_button = ttk.Button(mainframe, text="Mark Queens", command=self.__mark_queens)
-        axiom1_button = ttk.Button(mainframe, text="Axiom 1", command=self.axiom_1)
-        axiom2_button = ttk.Button(mainframe, text="Axiom 2", command=self.axiom_2)
-        auto_solve_button = ttk.Button(mainframe, text="Auto Solve", command=self.auto_solve)
-        mark_queens_button.grid(row=4, column=0)
-        axiom1_button.grid(row=4,column=1)
-        axiom2_button.grid(row=4,column=2)
-        auto_solve_button.grid(row=4,column=3) 
+        ## solving controls frame
+        solving_controls = ttk.Frame(mainframe)
+        solving_controls.grid(row=2, padx=10, pady=10)
 
-        # sixth row (solving options)
-        times_to_think_ahead_label = tk.Label(mainframe, text="Axiom 1 - no. of moves to think ahead")
-        times_to_think_ahead_label.grid(row=5, column=0, columnspan=2)
-        self.think_ahead = ttk.Entry(mainframe)
-        self.think_ahead.grid(row=5, column=2)
+        ### solving controls frame first row
+        mark_queens_button = ttk.Button(solving_controls, text="Mark Queens", command=self.__mark_queens)
+        axiom1_button = ttk.Button(solving_controls, text="Axiom 1", command=self.axiom_1)
+        axiom2_button = ttk.Button(solving_controls, text="Axiom 2", command=self.axiom_2)
+        auto_solve_button = ttk.Button(solving_controls, text="Auto Solve", command=self.auto_solve)
+        mark_queens_button.grid(row=0, column=0)
+        axiom1_button.grid(row=0,column=1)
+        axiom2_button.grid(row=0,column=2)
+        auto_solve_button.grid(row=0,column=3) 
+
+        ### solving controls frame 2nd row
+        times_to_think_ahead_label = tk.Label(solving_controls, text="Axiom 1 - no. of moves to think ahead")
+        times_to_think_ahead_label.grid(row=1, column=0, columnspan=2)
+        self.think_ahead = ttk.Entry(solving_controls)
+        self.think_ahead.grid(row=1, column=2)
         self.think_ahead.insert(tk.END, '1') # default value
+
+        # padding
+        for child in grid_configs.winfo_children():
+            child.grid_configure(padx=5, pady=2)
+        for child in solving_controls.winfo_children():
+            child.grid_configure(padx=5, pady=2)
 
 
     def __pick_color(self):

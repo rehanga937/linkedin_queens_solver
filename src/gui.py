@@ -57,7 +57,7 @@ class GUI:
         self.grid_size_input.grid(row=0, column=1)
 
         ### third row of grid config frame (color picker)
-        color_picker_label = ttk.Label(grid_configs, text="Pick Color")
+        color_picker_label = ttk.Label(grid_configs, text="Pick Color\n(Right click cells to paint cells)")
         color_picker_label.grid(row=2, column=0, sticky="e")
 
         self.color_picker_button = tk.Button(

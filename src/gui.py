@@ -207,6 +207,7 @@ class GUI:
                 messagebox.showinfo("Invalid JSON", "Colors array does not match grid size")
                 return
         
+        self.__grid_size = grid_size
         self.__create_new_grid(grid_size, colors)
 
 

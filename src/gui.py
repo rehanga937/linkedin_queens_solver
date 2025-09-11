@@ -1,7 +1,8 @@
 import sys
+import json
 
 import tkinter as tk
-from tkinter import ttk, colorchooser
+from tkinter import ttk, colorchooser, filedialog, messagebox
 
 from src.queens_board import Board, Cell, CellStatus
 from src.solving_logic import SolvingLogic
@@ -69,9 +70,11 @@ class GUI:
         self.__cell_grid = ttk.Frame(mainframe)
         self.__cell_grid.grid(row=1, padx=10, pady=10)
 
-        ### second row of grid config frame (create grid button)
+        ### second row of grid config frame (grid command buttons)
         create_grid_button = ttk.Button(grid_configs, command=self.__create_grid, text="Create Grid / Reset")
-        create_grid_button.grid(row=1)
+        create_grid_button.grid(row=1, column=0)
+        save_grid_button = ttk.Button(grid_configs, command=self.save_grid_2_json_file, text="Save Grid")
+        save_grid_button.grid(row=1, column=1)
 
         ## solving controls frame
         solving_controls = ttk.Frame(mainframe)
@@ -157,6 +160,46 @@ class GUI:
                 )
                 cell.bind("<Button-3>", func=self.__change_cell_color) # on right-click, change cell color
                 self.__gui_cells.append(cell)
+
+    def grid_colors_2_json_dict(self) -> dict:
+        """Saves the information about the grid to a dictionary. Considers only the blank board - i.e. crosses and queens locations are not saved.
+        """
+        grid_size = self.__grid_size
+        
+        colors: list[list[str]] = []
+        for y in range(0, grid_size):
+            colors_in_this_row: list[str] = []
+            for x in range(0, grid_size):
+                gui_cell = self.__gui_cells[x + self.__grid_size * y]
+                color_str = gui_cell.cget("bg")
+                colors_in_this_row.append(color_str)
+            colors.append(colors_in_this_row)
+
+        output = {
+            "rows": grid_size,
+            "cols": grid_size,
+            "colors": colors
+        }
+        return output
+
+
+    def save_grid_2_json_file(self):
+        """Function to save the grid (colors only - i.e. a blank board with the colors) to a json file.
+
+        Uses a filedialog.
+        """
+        # get the dict representation that can be saved to a json
+        dict_repr = self.grid_colors_2_json_dict()
+
+        # ask the user for the filepath
+        file_path = filedialog.asksaveasfilename(defaultextension=".json",
+                                             filetypes=[("JSON files", "*.json")])
+        if not file_path: return
+
+        # save the dict to a json at the filepath
+        with open(file_path, "wt") as f:
+            json.dump(dict_repr, f, indent=4)
+        messagebox.showinfo("Saved", f"Grid saved to {file_path}")
 
     
     def __update_gui_to_board(self):

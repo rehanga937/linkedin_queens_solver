@@ -14,6 +14,18 @@ class CellStatus(Enum):
     CROSS = "x"
     QUEEN = chr(0x2655) # ♕
 
+    def get_status_for(char: str) -> 'CellStatus':
+        map = {
+            "": CellStatus.BLANK,
+            " ": CellStatus.BLANK,
+            "x": CellStatus.CROSS,
+            "♕": CellStatus.QUEEN
+        }
+        try:
+            return map[char]
+        except KeyError:
+            raise Exception("Unidentified character")
+
 
 class Cell:
     """A single cell of the Queens board
@@ -27,7 +39,7 @@ class Cell:
     """y-coordinate (0-indexing) \n\n x-coord is from left to right. y-coord is from top to bottom. Origin is at the top-left of the board."""
     status: CellStatus
 
-    def __init__(self, x: int, y: int, color: str):
+    def __init__(self, x: int, y: int, color: str, status: CellStatus = CellStatus.BLANK):
         """x-coord is from left to right. y-coord is from top to bottom. Origin is at the top-left of the board.
 
         Args:
@@ -35,7 +47,7 @@ class Cell:
         """
         self.color = color; 
         self.x = x; self.y = y
-        self.status = CellStatus.BLANK
+        self.status = status
 
 
 class ColorSet:
@@ -384,14 +396,26 @@ class Board:
         copy_board.__mark_queen(the_cell)
 
         blank_cells = copy_board.get_blank_cells()
-        results: list[bool] = []
+        results: list[tuple[Cell, bool]] = []
         for _cell in blank_cells:
             result = copy_board.would_cell_block_color_set_n(_cell, n-1) # recursion
-            results.append(result)
+            results.append((_cell, result))
 
-        # if at least one result is True, return True
-        for result in results:
-            if result: return True
+        # if in at least one color set, all the cells have returned True, return True
+        colors_results: dict[str, list[bool]] = {}
+        for cell, result in results:
+            if cell.color not in colors_results.keys():
+                colors_results[cell.color] = [result]
+            else:
+                colors_results[cell.color].append(result)
+        # print(colors_results)
+        for values in colors_results.values():
+            atleast_one_false = False
+            for value in values:
+                if value == False: 
+                    atleast_one_false = True
+                    break
+            if not atleast_one_false: return True
 
         return False
 

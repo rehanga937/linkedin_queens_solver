@@ -1,36 +1,36 @@
 # About
-This project is a puzzle solver for the LinkedIn flavor of the 'Queens' puzzle.
+This project is a puzzle solver, with a simple tkinter Graphical User Interface, for the LinkedIn flavor of the 'Queens' puzzle.
 
 You can learn about the puzzle and its rules at https://www.linkedin.com/help/linkedin/answer/a6269510.
 
 ## Board Examples
 A starting board:
 
-<img src="readme_images/example_board_start.png" alt="An example of a starting board" width="33%"/>
+<img src="readme_images/example_board_start_gui.png" alt="An example of a starting board" width="33%"/>
 
 A solved board:
 
-<img src="readme_images/example_board_solved.png" alt="An example of a solved board" width="33%"/>
+<img src="readme_images/example_board_solved_gui.png" alt="An example of a solved board" width="33%"/>
 
-# How 2 Use
+# Usage
 ## Prerequisites
-Install the python packages from `requirements.txt`. It just contains `openpyxl` for printing out the board with its solution and steps.
+Python must be installed on your system.
+The program was developed and tested on Python 3.11, but any reasonably modern Python version should work. 
 
-## Usage
-- Run `puzzle_grid_gui.py' to create starting puzzle grids.
-    - It provides an as-of-now vibe-coded tkinter GUI.
-    - You can create starting puzzles via the GUI and save them as .json files.
-    - You can also load .json files to visualize them.
-- Run `main.py` with the filepath as the first and only CLI argument. Exclude the file extension from the argument.
-    - The solving steps will be printed on the terminal.
-    - The board solution with its solution steps will be printed out in an excel file with the same filepath and filename as the .json file.
-    ```bash
-    python3 main.py tests/puzzle_starts/20250408
-    ```
-    - If generating pickle file of the board's cell statuses for testing, add 'test' as an additional CLI argument.
-    ```bash
-    python3 main.py tests/puzzle_starts/20250408 test
-    ```
+Modern versions of Python come with `tkinter`, which is what this program uses to create the GUI. If not it has to be installed manually.
+
+## Quickstart - Launch on Windows
+Double click the `launch (windows).bat` file.
+
+## Launch on Any Platform
+```bash
+python3 run_gui.py
+```
+
+## Load Example Puzzles
+Use the `Load Grid` button to load pre-saved puzzles found in the `examples` folder (json files).
+
+
 
 # How Does it Work?
 In addition to the rules of Queen placement:
@@ -52,8 +52,11 @@ This logic is applied in a loop in `main.py`.
 - If the above 2 conditions are not met, the program may place queens or crosses at invalid positions.
 - GUI currently does not support the creation of starting boards with pre-placed queens.
 - The program has not been tested on puzzles that require the thinking of 3 or more moves ahead.
-- Logic loop:
+- Logic loop (for the autosolver):
     - Right now main.py simply executes the Queen marking rules and the 2 axioms in a loop. But maybe it's possible for the program to choose which rule or axiom to execute.
+- User input edge case testing, general QA testing...
+- The `launch (windows).bat` file causes a terminal to be open in the background.
+    - Trying to bypass this (using pythonw.exe for example) is problematic due to the use of stdout and stderr by the GUI terminal.
 
 # Technical Notes
 ## X-Y-Origin Convention
@@ -66,3 +69,6 @@ The `examples` directory contains 2 solved examples.
 
 
 <img src="readme_images/terminal_output_for_examples.png" alt="Screenshot of the terminal output of the 2 examples been solved" width="50%"/>
+
+## Tests
+`test.py` tests the auto_solver function of the SolvingLogic class.

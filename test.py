@@ -1,6 +1,11 @@
-import subprocess
+# This script essentially tests the SolvingLogic auto_solve function
+
+
 import os
 import pickle
+
+from src.queens_board import Board
+from src.solving_logic import SolvingLogic
 
 
 PUZZLE_START_DIRECTORY_PATH = "tests/puzzle_starts"
@@ -13,37 +18,30 @@ GREEN = "\033[32m"
 files = os.listdir(PUZZLE_START_DIRECTORY_PATH)
 puzzles = []
 for file in files:
-    puzzles.append(os.path.splitext(file)[0])
+    puzzles.append(file)
 
 all_tests_passed = True
 
 for puzzle in puzzles:
-    subprocess.run(["python3", "main.py",f"{PUZZLE_START_DIRECTORY_PATH}/{puzzle}", 'test']) # run main.py on each puzzle in the directory
-    try: os.remove(f"{PUZZLE_START_DIRECTORY_PATH}/{puzzle}.xlsx") # remove the generated excel file, we don't need it
-    except FileNotFoundError:
-        print(f"{RED}Puzzle {puzzle} excel not generated!{RESET}")
-        all_tests_passed = False
-        continue
+    # create a Board from the json file
+    filepath = f"{PUZZLE_START_DIRECTORY_PATH}/{puzzle}"
+    print(f"Filepath: {filepath}")
+    board = Board.from_json(filepath)
 
-    # load the generated pickle file
-    try:
-        with open(f"{PUZZLE_START_DIRECTORY_PATH}/{puzzle}.pkl", "rb") as f:
-            generated_statuses = pickle.load(f)
-    except FileNotFoundError:
-        print(f"{RED}Puzzle {puzzle} pickle not found!{RESET}")
-        all_tests_passed = False
-        continue
+    # Use the SolvingLogic class auto_solve function to solve the board
+    SolvingLogic.auto_solve(board)
 
-    # load the truth pickle file
-    with open(f"{TRUTH_DIRECTORY_PATH}/{puzzle}.pkl", "rb") as f:
+    generated_status_grid = board.to_status_grid()
+
+    # load the truth pickle file status grid
+    puzzle_name_only = os.path.splitext(puzzle)[0]
+    with open(f"{TRUTH_DIRECTORY_PATH}/{puzzle_name_only}.pkl", "rb") as f:
         truth_statuses = pickle.load(f)
 
-    if truth_statuses != generated_statuses:
+    if truth_statuses != generated_status_grid:
         all_tests_passed = False
         print(f"{RED}Puzzle {puzzle} failed!{RESET}")
 
-    # clean-up
-    os.remove(f"{PUZZLE_START_DIRECTORY_PATH}/{puzzle}.pkl")
     print("\n\n")
 
 if all_tests_passed: print(f"{GREEN}All tests passed.{RESET}")

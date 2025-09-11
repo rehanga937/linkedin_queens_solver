@@ -11,15 +11,18 @@ from src.copy_std import STDOutHandler, STDErrHandler
 
 class GUI:
 
-    __gui_cells: list[tk.Label] = []
+    gui_cells: list[tk.Label] = []
     """Holds references to the gui cells. Keep this in grid order (like reading a book from left to right, top to bottom)
 
     (So that cells can be accessed easily via this convention: gui_cell = self.__gui_cells[x + self.__grid_size * y])
     """
 
-    __chosen_color = "white" # initial color
-    __grid_size: int = 0
-    __board: Board
+    chosen_color = "white" # initial color
+    """Variable to hold the currently chosen color from the color picker.
+    """
+
+    grid_size: int = 0
+    board: Board
 
     def __init__(self, root: tk.Tk):
 
@@ -50,25 +53,25 @@ class GUI:
         ### first row of grid config frame (grid size input)
         grid_size_input_label = ttk.Label(grid_configs, text="Grid Size")
         grid_size_input_label.grid(row=0, column=0)
-        self.__grid_size_input = ttk.Entry(grid_configs)
-        self.__grid_size_input.grid(row=0, column=1)
+        self.grid_size_input = ttk.Entry(grid_configs)
+        self.grid_size_input.grid(row=0, column=1)
 
         ### third row of grid config frame (color picker)
         color_picker_label = ttk.Label(grid_configs, text="Pick Color")
         color_picker_label.grid(row=2, column=0, sticky="e")
 
-        self.__color_picker_button = tk.Button(
+        self.color_picker_button = tk.Button(
             grid_configs, 
-            command=self.__pick_color,
+            command=self.pick_color,
             height=2,
             width=4,
-            bg=self.__chosen_color # set the initial color
+            bg=self.chosen_color # set the initial color
         )
-        self.__color_picker_button.grid(row=2, column=1, sticky="w")
+        self.color_picker_button.grid(row=2, column=1, sticky="w")
 
         ## (queens cell grid)
-        self.__cell_grid = ttk.Frame(mainframe)
-        self.__cell_grid.grid(row=1, padx=10, pady=10)
+        self.cell_grid = ttk.Frame(mainframe)
+        self.cell_grid.grid(row=1, padx=10, pady=10)
 
         ### second row of grid config frame (grid command buttons)
         create_grid_button = ttk.Button(grid_configs, command=self.create_new_grid, text="Create Grid / Reset")
@@ -83,7 +86,7 @@ class GUI:
         solving_controls.grid(row=2, padx=10, pady=10)
 
         ### solving controls frame first row
-        mark_queens_button = ttk.Button(solving_controls, text="Mark Queens", command=self.__mark_queens)
+        mark_queens_button = ttk.Button(solving_controls, text="Mark Queens", command=self.mark_queens)
         axiom1_button = ttk.Button(solving_controls, text="Axiom 1", command=self.axiom_1)
         axiom2_button = ttk.Button(solving_controls, text="Axiom 2", command=self.axiom_2)
         auto_solve_button = ttk.Button(solving_controls, text="Auto Solve", command=self.auto_solve)
@@ -113,35 +116,35 @@ class GUI:
             child.grid_configure(padx=5, pady=2)
 
 
-    def __pick_color(self):
+    def pick_color(self):
         """This will change the self.__chosen_color variable and update the color picker button.
         """
-        self.__chosen_color = colorchooser.askcolor(initialcolor=self.__chosen_color)[1] # [1] to choose the hex code. For example the entire returned tuple might look like this: ((255, 0, 0), '#ff0000')
-        self.__color_picker_button.config(bg=self.__chosen_color) # update the color of the button 
+        self.chosen_color = colorchooser.askcolor(initialcolor=self.chosen_color)[1] # [1] to choose the hex code. For example the entire returned tuple might look like this: ((255, 0, 0), '#ff0000')
+        self.color_picker_button.config(bg=self.chosen_color) # update the color of the button 
 
 
 
 
 
-    def __change_cell_color(self, event: tk.Event):
-        """Change a cell color to the current self.__chosen_color
+    def change_cell_color(self, event: tk.Event):
+        """Change a cell color to the current self.chosen_color
 
         Args:
             event (tk.Event): This tk.Event should correspond to a gui cell.
         """
         cell: tk.Label = event.widget
-        cell.config(bg=self.__chosen_color)
+        cell.config(bg=self.chosen_color)
 
     def create_new_grid(self):
         """Function to create a cell grid (the queens board) in the GUI with whatever grid size the user has entered
         """
         # validation
         try: 
-            new_grid_size = int(self.__grid_size_input.get())
+            new_grid_size = int(self.grid_size_input.get())
             if new_grid_size < 1 or new_grid_size > 20: return
         except ValueError: return
 
-        self.__grid_size = new_grid_size
+        self.grid_size = new_grid_size
         
         self.__create_new_grid(new_grid_size)
 
@@ -154,15 +157,15 @@ class GUI:
                 Defaults to None. If none, all cells will be initialized with white. Colors are tkinter compatible string values: e.g.: "blue", "#FF0000", etc.
         """
         # reset cells
-        for cell in self.__gui_cells: cell.destroy()
-        self.__gui_cells = []
+        for cell in self.gui_cells: cell.destroy()
+        self.gui_cells = []
 
         for row_number in range(0, grid_size):
             for col_number in range(0, grid_size):
                 color = "white"
                 if colors: color = colors[row_number][col_number]
                 cell = tk.Label(
-                    self.__cell_grid, 
+                    self.cell_grid, 
                     fg="black", bg=color, # i guess fg affects the border color
                     # text="t", 
                     borderwidth=2, relief="solid", # solid border
@@ -173,8 +176,8 @@ class GUI:
                     row=row_number, column=col_number, 
                     padx=2, pady=2 # this refers to the external padding. i.e. the spacing between individual cells
                 )
-                cell.bind("<Button-3>", func=self.__change_cell_color) # on right-click, change cell color
-                self.__gui_cells.append(cell)
+                cell.bind("<Button-3>", func=self.change_cell_color) # on right-click, change cell color
+                self.gui_cells.append(cell)
 
     def load_new_grid(self):
         """Load a grid from a json file.
@@ -207,20 +210,20 @@ class GUI:
                 messagebox.showinfo("Invalid JSON", "Colors array does not match grid size")
                 return
         
-        self.__grid_size = grid_size
+        self.grid_size = grid_size
         self.__create_new_grid(grid_size, colors)
 
 
     def grid_colors_2_json_dict(self) -> dict:
         """Saves the information about the grid to a dictionary. Considers only the blank board - i.e. crosses and queens locations are not saved.
         """
-        grid_size = self.__grid_size
+        grid_size = self.grid_size
         
         colors: list[list[str]] = []
         for y in range(0, grid_size):
             colors_in_this_row: list[str] = []
             for x in range(0, grid_size):
-                gui_cell = self.__gui_cells[x + self.__grid_size * y]
+                gui_cell = self.gui_cells[x + self.grid_size * y]
                 color_str = gui_cell.cget("bg")
                 colors_in_this_row.append(color_str)
             colors.append(colors_in_this_row)
@@ -272,7 +275,7 @@ class GUI:
     def __update_gui_to_board(self):
         # first create Cells
         cells: list[Cell] = []
-        for gui_cell in self.__gui_cells:
+        for gui_cell in self.gui_cells:
             grid_information = gui_cell.grid_info()
             column_index = grid_information['column']
             row_index = grid_information['row']
@@ -284,20 +287,20 @@ class GUI:
             cells.append(cell)
 
         # then create Board
-        self.__board = Board(self.__grid_size, self.__grid_size, cells)
+        self.board = Board(self.grid_size, self.grid_size, cells)
         
 
     def __update_board_to_gui(self):
-        for y, row in enumerate(self.__board.cell_grid):
+        for y, row in enumerate(self.board.cell_grid):
             for x, cell in enumerate(row):
-                gui_cell = self.__gui_cells[x + self.__grid_size * y]
+                gui_cell = self.gui_cells[x + self.grid_size * y]
                 gui_cell.config(text=cell.status.value, bg=cell.color)
 
-    def __mark_queens(self):
+    def mark_queens(self):
         """For the button command.
         """
         self.__update_gui_to_board()
-        SolvingLogic.mark_queens_where_certain(self.__board)
+        SolvingLogic.mark_queens_where_certain(self.board)
         self.__update_board_to_gui()
 
     def axiom_1(self):
@@ -312,19 +315,19 @@ class GUI:
         except ValueError: 
             times_to_think_ahead = 1
             self.think_ahead.insert(tk.END, '1') # default value
-        SolvingLogic.axiom_1_should_not_block_color_sets(self.__board, times_to_think_ahead)
+        SolvingLogic.axiom_1_should_not_block_color_sets(self.board, times_to_think_ahead)
         self.__update_board_to_gui()
 
     def axiom_2(self):
         """For the button command.
         """
         self.__update_gui_to_board()
-        SolvingLogic.axiom_2_color_common_holdings(self.__board)
+        SolvingLogic.axiom_2_color_common_holdings(self.board)
         self.__update_board_to_gui()
 
     def auto_solve(self):
         """For the button command.
         """
         self.__update_gui_to_board()
-        SolvingLogic.auto_solve(self.__board)
+        SolvingLogic.auto_solve(self.board)
         self.__update_board_to_gui()

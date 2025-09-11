@@ -75,6 +75,8 @@ class GUI:
         create_grid_button.grid(row=1, column=0)
         save_grid_button = ttk.Button(grid_configs, command=self.save_grid_2_json_file, text="Save Grid")
         save_grid_button.grid(row=1, column=1)
+        load_grid_button = ttk.Button(grid_configs, command=self.load_new_grid, text="Load Grid")
+        load_grid_button.grid(row=1, column=2)
 
         ## solving controls frame
         solving_controls = ttk.Frame(mainframe)
@@ -172,6 +174,40 @@ class GUI:
                 )
                 cell.bind("<Button-3>", func=self.__change_cell_color) # on right-click, change cell color
                 self.__gui_cells.append(cell)
+
+    def load_new_grid(self):
+        """Load a grid from a json file.
+
+        Asks user for location of json file. Reads the json file and creates a new grid with the size and colors provided in the json file.
+        """
+        file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
+        if not file_path: return
+
+        with open(file_path, "rt") as f:
+            grid_json_dict = json.load(f)
+
+        rows = grid_json_dict['rows']
+        cols = grid_json_dict['cols']
+        if rows != cols:
+            messagebox.showinfo("Invalid grid size", "Grid is not a square!")
+            return
+        grid_size = rows
+        if grid_size < 1 or grid_size > 20: 
+            messagebox.showinfo("Invalid grid size", "Grid size must be between 1 and 20")
+            return
+        
+        colors = grid_json_dict['colors']
+        # validate colors size
+        if len(colors) != grid_size:
+            messagebox.showinfo("Invalid JSON", "Colors array does not match grid size")
+            return
+        for row in colors:
+            if len(row) != grid_size:
+                messagebox.showinfo("Invalid JSON", "Colors array does not match grid size")
+                return
+        
+        self.__create_new_grid(grid_size, colors)
+
 
     def grid_colors_2_json_dict(self) -> dict:
         """Saves the information about the grid to a dictionary. Considers only the blank board - i.e. crosses and queens locations are not saved.

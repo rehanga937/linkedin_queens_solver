@@ -236,6 +236,23 @@ class GUI:
         """Function to save the grid (colors only - i.e. a blank board with the colors) to a json file.
 
         Uses a filedialog.
+        Example json:
+        ```
+        {
+            "rows": 2,
+            "cols": 2,
+            "colors": [
+                [
+                    "blue",
+                    "#ff0000"
+                ],
+                [
+                    "#ff0000",
+                    "white"
+                ]
+            ]
+        }
+        ```
         """
         # get the dict representation that can be saved to a json
         dict_repr = self.grid_colors_2_json_dict()

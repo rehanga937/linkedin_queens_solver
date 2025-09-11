@@ -6,7 +6,7 @@ from tkinter import ttk, colorchooser, filedialog, messagebox
 
 from src.queens_board import Board, Cell, CellStatus
 from src.solving_logic import SolvingLogic
-from src.copy_stdout import STDOutHandler
+from src.copy_std import STDOutHandler, STDErrHandler
 
 
 class GUI:
@@ -104,6 +104,7 @@ class GUI:
         terminal.grid(row=3, padx=10, pady=10)
         # text.pack(expand=True, fill="both")
         sys.stdout = STDOutHandler(terminal) # tell sys.stdout that our STDOutHandler object is the new stdout
+        sys.stderr = STDErrHandler(terminal) # tell sys.stderr that our STDErrHandler object is the new stderr
 
         # padding
         for child in grid_configs.winfo_children():

@@ -71,7 +71,7 @@ class GUI:
         self.__cell_grid.grid(row=1, padx=10, pady=10)
 
         ### second row of grid config frame (grid command buttons)
-        create_grid_button = ttk.Button(grid_configs, command=self.__create_grid, text="Create Grid / Reset")
+        create_grid_button = ttk.Button(grid_configs, command=self.create_new_grid, text="Create Grid / Reset")
         create_grid_button.grid(row=1, column=0)
         save_grid_button = ttk.Button(grid_configs, command=self.save_grid_2_json_file, text="Save Grid")
         save_grid_button.grid(row=1, column=1)
@@ -129,26 +129,38 @@ class GUI:
         cell: tk.Label = event.widget
         cell.config(bg=self.__chosen_color)
 
-    def __create_grid(self):
+    def create_new_grid(self):
         """Function to create a cell grid (the queens board) in the GUI with whatever grid size the user has entered
         """
+        # validation
+        try: 
+            new_grid_size = int(self.__grid_size_input.get())
+            if new_grid_size < 1 or new_grid_size > 20: return
+        except ValueError: return
 
+        self.__grid_size = new_grid_size
+        
+        self.__create_new_grid(new_grid_size)
+
+    def __create_new_grid(self, grid_size: int, colors: list[list[str]] = None):
+        """Creates a new grid in the GUI.
+
+        Args:
+            grid_size (int): _description_
+            colors (list[list[str]], optional): Colors of the cells. List of list - book reading order - i.e. left to right, top to bottom. 
+                Defaults to None. If none, all cells will be initialized with white. Colors are tkinter compatible string values: e.g.: "blue", "#FF0000", etc.
+        """
         # reset cells
         for cell in self.__gui_cells: cell.destroy()
         self.__gui_cells = []
 
-        # validation
-        try: 
-            max_index = int(self.__grid_size_input.get())
-            if max_index < 1 or max_index > 20: return
-        except ValueError: return
-
-        self.__grid_size = max_index
-        for row_number in range(0, max_index):
-            for col_number in range(0, max_index):
+        for row_number in range(0, grid_size):
+            for col_number in range(0, grid_size):
+                color = "white"
+                if colors: color = colors[row_number][col_number]
                 cell = tk.Label(
                     self.__cell_grid, 
-                    fg="black", bg="white", # i guess fg affects the border color
+                    fg="black", bg=color, # i guess fg affects the border color
                     # text="t", 
                     borderwidth=2, relief="solid", # solid border
                     # padx=2, pady=2, # this refers to the interior padding

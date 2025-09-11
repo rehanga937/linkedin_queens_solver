@@ -6,11 +6,11 @@ You can learn about the puzzle and its rules at https://www.linkedin.com/help/li
 ## Board Examples
 A starting board:
 
-<img src="readme_images/example_board_start_gui.png" alt="An example of a starting board" width="33%"/>
+<img src="readme_images/example_board_start_gui.png" alt="An example of a starting board" width="66%"/>
 
 A solved board:
 
-<img src="readme_images/example_board_solved_gui.png" alt="An example of a solved board" width="33%"/>
+<img src="readme_images/example_board_solved_gui.png" alt="An example of a solved board" width="66%"/>
 
 # Usage
 ## Prerequisites
@@ -71,4 +71,5 @@ The `examples` directory contains 2 solved examples.
 <img src="readme_images/terminal_output_for_examples.png" alt="Screenshot of the terminal output of the 2 examples been solved" width="50%"/>
 
 ## Tests
+
 `test.py` tests the auto_solver function of the SolvingLogic class.

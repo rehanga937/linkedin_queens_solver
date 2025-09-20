@@ -13,6 +13,8 @@ A solved board:
 <img src="readme_images/example_board_solved_gui.png" alt="An example of a solved board" width="66%"/>
 
 # Usage
+> [!CAUTION]
+> Tested only on Windows
 ## Prerequisites
 Python must be installed on your system.
 The program was developed and tested on Python 3.11, but any reasonably modern Python version should work. 
@@ -73,3 +75,4 @@ The `examples` directory contains 2 solved examples.
 ## Tests
 
 `test.py` tests the auto_solver function of the SolvingLogic class.
+
